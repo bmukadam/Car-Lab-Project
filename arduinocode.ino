@@ -39,7 +39,8 @@ Distributed as-is; no warranty is given.
 #include "SPI.h"
 
 LSM6DS3 myIMU; //Default constructor is I2C, addr 0x6B
-const int pwmspeed = 3 ;     //initializing pin 2 as ‘pwm’ variable
+const int pwmspeed = 3 ;     //initializing pin 3 as ‘pwm’ variable
+const int pwmturn = 5 ;     //initializing pin 5 as ‘pwm’ variable
 
 void setup() {
   // put your setup code here, to run once:
@@ -51,8 +52,8 @@ void setup() {
   myIMU.begin();
 
   pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(pwmspeed,OUTPUT) ;   //Set pin 2 as output
-  
+  pinMode(pwmspeed,OUTPUT) ;   //Set pin 3 as output
+  pinMode(pwmturn,OUTPUT) ;   //Set pin 3 as output  
   
   
 }
@@ -65,6 +66,7 @@ void loop()
   float yaccel = myIMU.readFloatAccelY();
   float zaccel = myIMU.readFloatAccelZ();
   int xindigital = 0;
+  int yindigital = 0;
   if (xaccel > 0 && zaccel > 0)
   {
     xindigital = 0;
@@ -77,18 +79,34 @@ void loop()
       xindigital = 0;
     }
   }
+
+  if (zaccel < 0)
+  {
+    yindigital = 19;
+  }
+  else
+  {
+    yindigital = (int)(((yaccel - 1.0)/(-1 - 1.0))*(239-121) + 121);
+  }
+
+  
    
   Serial.print("\nAccelerometer:\n");
   Serial.print(" X = ");
   Serial.println(xaccel, 4);
   Serial.print(" Xindigital = ");
   Serial.println(xindigital);
+  Serial.print(" Yindigital = ");
+  Serial.println(yindigital);
   Serial.print(" Y = ");
   Serial.println(yaccel, 4);
   Serial.print(" Z = ");
   Serial.println(zaccel, 4);
 
   analogWrite(pwmspeed, xindigital) ; 
+  analogWrite(pwmturn, yindigital) ;
+  //analogWrite(pwmturn, 239 121) ; 
+  
   /*digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
   delay(1000);                       // wait for a second
   digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
@@ -118,5 +136,5 @@ void loop()
   Serial.print(" Degrees F = ");
   Serial.println(myIMU.readTempF(), 4);*/
   
-  delay(500);
+  delay(1000);
 }
